@@ -1,0 +1,23 @@
+name: Build and Deploy ShinyProxy Image
+
+on:
+  push:
+    branches: [dev, prod]
+    paths:
+      - 'src/**'
+      - 'pom.xml'
+      - 'Dockerfile'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: IntegralEnvision/.github/.github/workflows/dma-k8s-docker-build-cicd.yaml@v1.0.0
+    with:
+      image_name: "shinyproxy"
+      dockerfile_path: "Dockerfile"
+      environment: ${{ github.ref_name }}
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}

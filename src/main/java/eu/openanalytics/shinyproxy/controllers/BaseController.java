@@ -22,6 +22,7 @@ package eu.openanalytics.shinyproxy.controllers;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
 import eu.openanalytics.containerproxy.auth.IAuthenticationBackend;
 import eu.openanalytics.containerproxy.backend.IContainerBackend;
 import eu.openanalytics.containerproxy.model.runtime.Proxy;
@@ -74,13 +75,13 @@ import java.util.Optional;
 public abstract class BaseController {
 
     private static final Logger logger = LogManager.getLogger(BaseController.class);
-    private static final Cache<String, Optional<LogoInfo>> logoInfoCache = Caffeine.newBuilder().build();
+    private static final Cache<String, Optional<LogoInfo>> logoInfoCache = Caffeine.newBuilder().expireAfterWrite(Duration.ofMinutes(5)).build();
     protected String applicationName;
     protected String title;
     private Boolean titleContainsExpression;
     private Boolean logoContainsExpression;
     protected String logo;
-    private final Cache<String, Optional<String>> logoCache = Caffeine.newBuilder().build();
+    private final Cache<String, Optional<String>> logoCache = Caffeine.newBuilder().expireAfterWrite(Duration.ofMinutes(5)).build();
     protected long heartbeatRate;
     protected boolean defaultShowNavbar;
     protected String defaultSupportAddress;
