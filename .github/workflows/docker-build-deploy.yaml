@@ -2,7 +2,7 @@ name: Build and Deploy ShinyProxy Image
 
 on:
   push:
-    branches: [master]
+    branches: [prod]
     paths:
       - 'src/**'
       - 'pom.xml'
