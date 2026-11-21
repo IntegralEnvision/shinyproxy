@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -29,6 +31,8 @@ jobs:
         run: sudo apt-get -qq -y install conntrack socat ; nohup socat TCP-LISTEN:2375,reuseaddr,fork UNIX-CONNECT:/var/run/docker.sock &
       - name: Pull Image
         run: docker pull openanalytics/shinyproxy-integration-test-app
+      - name: Build vendored spring-boot-undertow (required since 3.2.5 / Spring Boot 4)
+        run: cd spring-boot-undertow && mvn -B -U clean install -DskipTests
       - name: Build with Maven
         run: mvn -U clean install -DskipTests
       - name: Run Tests
