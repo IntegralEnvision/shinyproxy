@@ -20,8 +20,9 @@
  */
 package eu.openanalytics.shinyproxy.runtimevalues;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.openanalytics.containerproxy.model.runtime.runtimevalues.RuntimeValueKey;
-import tools.jackson.databind.ObjectMapper;
 
 public class CustomAppDetailsKey extends RuntimeValueKey<CustomAppDetails> {
 
@@ -43,11 +44,19 @@ public class CustomAppDetailsKey extends RuntimeValueKey<CustomAppDetails> {
 
     @Override
     public CustomAppDetails deserializeFromString(String value) {
-        return objectMapper.readValue(value, CustomAppDetails.class);
+        try {
+            return objectMapper.readValue(value, CustomAppDetails.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public String serializeToString(CustomAppDetails value) {
-        return objectMapper.writeValueAsString(value);
+        try {
+            return objectMapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

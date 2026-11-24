@@ -32,11 +32,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 import java.io.IOException;
 
 import static eu.openanalytics.containerproxy.ui.AuthController.AUTH_SUCCESS_URL_SESSION_ATTR;
@@ -57,15 +58,18 @@ public class UISecurityConfig implements ICustomSecurityConfig {
     @Inject
     private ProxyAccessControlService proxyAccessControlService;
 
+    @Inject
+    private HandlerMappingIntrospector handlerMappingIntrospector;
+
     @Override
     public void apply(HttpSecurity http) throws Exception {
         // Limit access to the app pages according to spec permissions
         http.authorizeHttpRequests(authz -> authz
             .requestMatchers(
-                PathPatternRequestMatcher.pathPattern( "/app/{specId}/**"),
-                PathPatternRequestMatcher.pathPattern( "/app_i/{specId}/**"),
-                PathPatternRequestMatcher.pathPattern( "/app_direct/{specId}/**"),
-                PathPatternRequestMatcher.pathPattern( "/app_direct_i/{specId}/**"))
+                new MvcRequestMatcher(handlerMappingIntrospector, "/app/{specId}/**"),
+                new MvcRequestMatcher(handlerMappingIntrospector, "/app_i/{specId}/**"),
+                new MvcRequestMatcher(handlerMappingIntrospector, "/app_direct/{specId}/**"),
+                new MvcRequestMatcher(handlerMappingIntrospector, "/app_direct_i/{specId}/**"))
             .access((authentication, context) -> new AuthorizationDecision(proxyAccessControlService.canAccessOrHasExistingProxy(authentication.get(), context)))
         );
         if (auth.hasAuthorization()) {
@@ -91,9 +95,9 @@ public class UISecurityConfig implements ICustomSecurityConfig {
         // Limit access to the admin pages
         http.authorizeHttpRequests(authz -> authz
             .requestMatchers(
-                PathPatternRequestMatcher.pathPattern( "/admin"),
-                PathPatternRequestMatcher.pathPattern( "/admin/**"),
-                PathPatternRequestMatcher.pathPattern( "/grafana/**"))
+                new MvcRequestMatcher(handlerMappingIntrospector, "/admin"),
+                new MvcRequestMatcher(handlerMappingIntrospector, "/admin/**"),
+                new MvcRequestMatcher(handlerMappingIntrospector, "/grafana/**"))
             .access((authentication, context) -> new AuthorizationDecision(userService.isAdmin(authentication.get())))
         );
 

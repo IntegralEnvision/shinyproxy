@@ -1,13 +1,6 @@
 # Build stage: compile the ShinyProxy JAR from source
 FROM public.ecr.aws/docker/library/maven:3.9-eclipse-temurin-21 AS builder
 
-# ShinyProxy >= 3.2.5 (Spring Boot 4) depends on io.undertow:undertow-spring-boot-starter:1.0.0-SNAPSHOT,
-# which is not published to any public Maven repo. Upstream builds it from the `spring-boot-undertow`
-# git submodule. Our CI checkout does not fetch submodules, so fetch the exact commit the submodule
-# pins (keep in sync with `git ls-tree HEAD spring-boot-undertow` when merging upstream releases).
-ADD https://github.com/jboss-fuse/spring-boot-undertow.git#f7313fea63a478e5732a2f04d1e6911a04a59ea5 /build/spring-boot-undertow
-RUN cd /build/spring-boot-undertow && mvn -B -q -DskipTests clean install
-
 WORKDIR /build
 COPY pom.xml LICENSE_HEADER ./
 # Cache dependencies
