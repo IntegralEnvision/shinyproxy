@@ -29,9 +29,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class IndexController extends BaseController {
@@ -94,6 +96,18 @@ public class IndexController extends BaseController {
         }
 
         prepareMap(map, request);
+
+        Map<ProxySpec, Boolean> openSwitchInstanceInsteadOfApp = new HashMap<>();
+        Map<ProxySpec, String> appUrl = new HashMap<>();
+        Map<ProxySpec, String> cleanDescription = new HashMap<>();
+        for (ProxySpec app : apps) {
+            openSwitchInstanceInsteadOfApp.put(app, thymeleaf.openSwitchInstanceInsteadOfApp(app));
+            appUrl.put(app, thymeleaf.getAppUrl(app));
+            cleanDescription.put(app, thymeleaf.cleanHtml(app.getDescription()));
+        }
+        map.put("openSwitchInstanceInsteadOfApp", openSwitchInstanceInsteadOfApp);
+        map.put("appUrl", appUrl);
+        map.put("cleanDescription", cleanDescription);
 
         // navbar
         map.put("page", "index");
